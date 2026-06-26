@@ -1,66 +1,80 @@
 ---
 name: skill-evaluator
-description: Evaluate Codex skill folders and produce Chinese reports for structure, trigger quality, workflow clarity, progressive disclosure, bundled resource design, validation coverage, and safe scope. Use when Codex is asked to review, score, QA, audit, improve, or compare a Codex skill, especially a folder containing SKILL.md, agents/openai.yaml, scripts, references, or assets. 也用于中文请求，例如评估该技能、审查这个技能、给技能打分、检查 Codex 技能、改进技能评估报告。
+description: Evaluate Codex skill folders and produce Chinese reports for structure, trigger quality, workflow clarity, progressive disclosure, bundled resource design, validation coverage, safe scope, and result-variance risks in the target skill's real use. Use when Codex is asked to review, score, QA, audit, improve, or compare a Codex skill. 也用于中文请求，例如评估该技能、审查这个技能、给技能打分、检查 Codex 技能、检查实践差异、检查目标技能在不同实践中是否可能产生不同结果、改进技能评估报告。
 ---
 
 # Skill Evaluator
 
 ## Workflow
 
-1. Identify the target skill directory.
-   - Prefer the path explicitly provided by the user.
-   - If the user gives only a skill name, look under `$CODEX_HOME/skills`, then `~/.codex/skills`.
-   - Do not modify the target skill unless the user explicitly asks for edits.
+1. 定位目标技能目录。
+   - 优先使用用户明确给出的路径。
+   - 如果用户只给技能名，先在 `$CODEX_HOME/skills`，再在 `~/.codex/skills` 下解析成技能目录路径。
+   - `scripts/check_skill.py` 只接受技能目录路径，不直接解析技能名。
+   - 除非用户明确要求修复，否则不要修改被评估技能。
+   - 本文中的 `目标技能` 或 `被评估技能` 始终指用户要求评估的技能目录，不是 `skill-evaluator` 自己，除非用户明确要求自评。
 
-2. Run the deterministic checker.
-   - From this skill directory, run:
+2. 运行确定性静态检查器。
+   - 从本技能目录运行：
 
 ```powershell
 python .\scripts\check_skill.py "C:\path\to\skill"
 ```
 
-   - Use `--json <path>` only when the user needs machine-readable output.
-   - Treat script output as evidence, not as a substitute for judgment.
+   - 只有用户需要机器可读结果时才使用 `--json <path>`。
+   - 将脚本输出视为证据和静态检查分，不要把它当作最终 rubric 综合分。
 
-3. Read `references/rubric.md` and apply the full rubric.
-   - Score against the 100-point rubric.
-   - Use the checker findings to anchor objective issues.
-   - Add manual findings for unclear workflow, bloated context, missing examples, weak validation, or unsafe default behavior.
+3. 读取 `references/rubric.md` 并应用完整 rubric。
+   - 给出 `静态检查分`：直接引用检查器输出。
+   - 给出 `rubric 综合分`：按 100 分 rubric 人工判断。
+   - 使用检查器 findings 锚定客观问题。
+   - 补充脚本无法判断的问题，例如流程含混、上下文臃肿、缺少真实验证、默认行为不安全、结果一致性风险。
 
-4. Review the skill contents directly.
-   - Read `SKILL.md` completely.
-   - Inspect `agents/openai.yaml` when present.
-   - List `scripts/`, `references/`, and `assets/`; read only files needed to judge whether resources are discoverable and useful.
-   - If a script is central to the skill, inspect its CLI/help text and obvious side effects before recommending it.
+4. 检查实践差异风险。
+   - 先识别目标技能的核心任务和预期产物，例如生成文件、修改代码、调用外部服务、输出分析报告、给出评分或执行验证。
+   - 将实践差异定义为：同一目标技能在不同执行者、线程、输入选择、环境、工具状态或多次运行中，是否可能产生不同输出、分数、文件修改、外部动作或结论。
+   - 检查风险来源：输入边界、文件选择、执行顺序、可选分支、环境依赖、外部服务、时间/网络状态、模型主观判断、输出契约、验证方式和副作用路径。
+   - 将说明与实现一致性作为风险诱因之一：对比目标技能的 `SKILL.md` 承诺、引用材料、脚本实际 CLI/输出、`agents/openai.yaml` 默认提示与真实工作流。
+   - 将这些内容写入 `实践差异风险`，即使静态检查器没有报错。
+   - 说明是否运行了重复评估或 forward-test；未运行时说明本次只是静态风险判断。
 
-5. Produce the report in Chinese in this exact order:
+5. 直接审阅技能内容。
+   - 完整阅读 `SKILL.md`。
+   - 检查 `agents/openai.yaml`。
+   - 列出 `scripts/`、`references/`、`assets/`；只读取判断资源可发现性和有效性所需的文件。
+   - 如果脚本是技能核心，检查其 CLI/help 文案和明显副作用。
+
+6. 用中文按以下顺序输出报告：
    - `结论`
-   - `评分`
+   - `静态检查分`
+   - `rubric 综合分`
    - `P0 问题`
    - `P1 问题`
    - `P2 问题`
    - `P3 问题`
+   - `实践差异风险`
    - `建议修复`
    - `验证命令`
 
-## Finding Priorities
+## 问题优先级
 
-- `P0`: The skill cannot load, cannot be discovered, or would likely cause destructive or unsafe behavior.
-- `P1`: The skill can load but is likely to trigger poorly, mislead Codex, omit essential workflow steps, or fail important validation.
-- `P2`: The skill works but has maintainability, clarity, resource organization, or testing gaps.
-- `P3`: Polish issues, wording improvements, minor hygiene, or optional enhancements.
+- `P0`：技能无法加载、无法发现，或默认行为可能造成破坏性/高风险后果。
+- `P1`：技能可加载，但很可能触发不准、误导 Codex、遗漏关键流程，或重要验证缺失。
+- `P2`：技能可用，但存在维护性、清晰度、资源组织、验证覆盖或实践差异风险。
+- `P3`：措辞、格式、示例、卫生或可选增强问题。
 
 ## Output Rules
 
-- Write the human-readable report in Chinese by default.
-- Keep commands, paths, code identifiers, JSON field names, and priority labels such as `P0` unchanged.
-- Lead with actionable findings, not praise.
-- Include file paths and line numbers when practical.
-- Keep suggested fixes focused; do not rewrite the whole skill unless asked.
-- If no issues exist for a priority level, write `未发现。`
-- End with commands the user can run to validate the reviewed skill.
-- State clearly when the review was static-only and no forward-test was run.
+- 默认用中文写人类可读报告。
+- 命令、路径、代码标识符、JSON 字段名、category ID 和 `P0` 等优先级标签保持原样。
+- 先列可执行问题，不要先写表扬。
+- 尽量给出文件路径和行号。
+- 修复建议保持聚焦；除非用户要求，不要重写整个技能。
+- 某个优先级没有问题时写 `未发现。`
+- `实践差异风险` 没有发现时写 `未发现。`，但仍说明本次是否运行了重复评估或 forward-test。
+- 明确说明本次评估是否只是静态评估，是否运行了 forward-test。
+- 结尾给出用户可运行的验证命令。
 
 ## References
 
-Read `references/rubric.md` for the scoring rubric and assessment checklist.
+读取 `references/rubric.md` 获取评分 rubric、实践差异风险检查项和报告示例。

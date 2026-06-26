@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Codex skill folder static checker.
+"""Codex 技能目录静态检查器。
 
-This script is read-only. It reports objective structure and hygiene findings
-that Codex can combine with the rubric in references/rubric.md.
+脚本默认只读，报告客观结构和卫生问题；完整技能评估仍需结合
+references/rubric.md 做人工判断。
 """
 
 from __future__ import annotations
@@ -56,8 +56,10 @@ class CheckResult:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="只读静态检查 Codex 技能目录，并输出中文评估报告。"
+        description="只读静态检查 Codex 技能目录，并输出中文评估报告。",
+        add_help=False,
     )
+    parser.add_argument("-h", "--help", action="help", help="显示帮助信息并退出")
     parser.add_argument("skill_dir", help="要检查的技能目录路径")
     parser.add_argument("--json", dest="json_path", help="把 JSON 结果写入指定路径")
     return parser.parse_args()
@@ -271,6 +273,7 @@ def inspect_skill(skill_dir: Path) -> CheckResult:
         "exists": skill_dir.exists(),
         "resource_counts": {},
         "skill_md_lines": 0,
+        "score_type": "static_check_score",
     }
 
     if not skill_dir.exists() or not skill_dir.is_dir():
@@ -464,8 +467,9 @@ def print_text(result: CheckResult) -> None:
     print(result.verdict)
     print(f"资源画像：{profile}（{scripts} 个脚本，{references} 个参考文件，{assets} 个资产文件）")
     print()
-    print("评分")
+    print("静态检查分")
     print(f"{result.score}/100")
+    print("提示：静态检查分只来自确定性脚本，不是最终 rubric 综合分；完整评估需按 references/rubric.md 另行判断。")
     print()
     for priority in ("P0", "P1", "P2", "P3"):
         print(f"{priority} 问题")
@@ -477,9 +481,12 @@ def print_text(result: CheckResult) -> None:
                 print(f"- {finding.category}: {finding.message}{location}")
         print()
 
+    print("实践差异风险")
+    print("- 静态检查器只能提醒人工检查，不能判定目标技能的跨实践结果差异；完整评估需检查被评估技能的输入边界、输出契约、环境依赖、外部状态、可选流程、副作用路径、输出或评分锚点，以及验证或 forward-test 证据。")
+    print()
     print("建议修复")
     if not result.findings:
-        print("- 静态检查未发现必须修复的问题。依赖该评分前，仍应结合 rubric 做人工判断。")
+        print("- 静态检查未发现必须修复的问题。依赖该分数前，仍应结合 rubric 综合分和实践差异风险做人工判断，尤其检查目标技能在不同实践中是否可能产生不同输出、文件修改、外部动作或结论。")
     else:
         for finding in result.findings[:8]:
             location = f"（{finding.path}）" if finding.path else ""

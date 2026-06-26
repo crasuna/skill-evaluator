@@ -1,4 +1,4 @@
 interface:
   display_name: "Skill Evaluator"
-  short_description: "用中文评估 Codex 技能质量"
-  default_prompt: "使用 $skill-evaluator 评估这个 Codex 技能目录，并用中文给出评分、问题和修复建议。"
+  short_description: "用中文评估 Codex 技能质量与实践差异风险"
+  default_prompt: "使用 $skill-evaluator 评估这个目标 Codex 技能目录，并检查该目标技能在不同实践中是否可能产生不同结果。"

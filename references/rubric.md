@@ -1,94 +1,117 @@
-# Skill Evaluation Rubric
+# 技能评估 Rubric
 
-Use this rubric to score Codex skills out of 100. The deterministic checker covers objective hygiene; the evaluator should still apply judgment to workflow fit, context economy, and validation quality.
+用本 rubric 对 Codex 技能做 `rubric 综合分`，总分 100。`scripts/check_skill.py` 只提供确定性的 `静态检查分` 和客观 findings；最终质量判断必须结合本 rubric、实际技能内容和实践差异风险检查。
 
-## Trigger Metadata - 20
+## 触发元数据 - 15
 
-- 5: `SKILL.md` exists and has valid YAML frontmatter.
-- 5: `name` is lowercase hyphen-case, concise, and matches the skill folder.
-- 7: `description` explains both what the skill does and when to use it.
-- 3: `description` includes concrete trigger contexts without overbroad claims.
+- 4：`SKILL.md` 存在，且 YAML frontmatter 有效。
+- 4：`name` 简短、为小写 hyphen-case，并与技能目录名一致。
+- 5：`description` 同时说明技能做什么、何时使用。
+- 2：`description` 包含具体触发场景，且不过度泛化。
 
-## Workflow Clarity - 20
+## 工作流清晰度 - 15
 
-- 6: The main workflow is ordered, executable, and easy to follow.
-- 5: Instructions are imperative and specific enough for another Codex instance.
-- 4: Important inputs, outputs, and stopping conditions are clear.
-- 3: The skill avoids generic filler and TODO/template residue.
-- 2: The output format or completion criteria are explicit when needed.
+- 4：主流程有顺序、可执行，评估者能按步骤完成。
+- 4：说明足够具体，另一个 Codex 实例不需要隐藏上下文。
+- 3：关键输入、输出和停止条件清楚。
+- 2：没有 TODO、模板残留或泛泛而谈的说明。
+- 2：报告格式或完成标准明确。
 
-## Progressive Disclosure - 15
+## 渐进披露 - 15
 
-- 5: `SKILL.md` stays lean and contains only core routing/workflow instructions.
-- 4: Detailed guidance is moved to `references/` when it would bloat context.
-- 3: Referenced files are named from `SKILL.md` with clear load conditions.
-- 3: The skill avoids deeply nested or duplicated reference material.
+- 5：`SKILL.md` 保持精简，只保留核心路由和工作流。
+- 4：详细规则、清单或示例放入 `references/`。
+- 3：`SKILL.md` 明确说明何时读取引用文件。
+- 3：避免深层嵌套引用和重复内容。
 
-## Resource Design - 15
+## 资源设计 - 15
 
-- 5: `scripts/`, `references/`, and `assets/` are used only when they add real value.
-- 4: Scripts have clear CLIs, avoid hidden destructive side effects, and can be run independently.
-- 3: Assets or templates are discoverable and tied to the workflow.
-- 3: Resource names and directory structure match the skill's tasks.
+- 5：`scripts/`、`references/`、`assets/` 只在真正有价值时使用。
+- 4：脚本 CLI 清晰、可独立运行，且无隐藏破坏性副作用。
+- 3：资产或模板可发现，并和工作流相关。
+- 3：资源命名和目录结构符合技能任务。
 
-## Validation - 15
+## 验证 - 10
 
-- 5: The skill tells Codex how to validate the work it performs.
-- 4: Included scripts or commands can be smoke-tested.
-- 3: The skill covers common failure modes or residual-risk reporting.
-- 3: Complex skills include guidance for forward-testing or realistic examples.
+- 3：技能说明如何验证评估结果。
+- 3：包含的脚本或命令可以 smoke test。
+- 2：覆盖常见失败模式或残余风险报告。
+- 2：复杂技能说明何时 forward-test，或给出真实示例。
 
-## Safety and Scope - 10
+## 安全与范围 - 10
 
-- 4: The skill has safe defaults around file edits, external systems, and destructive actions.
-- 3: It respects user intent and avoids expanding scope without confirmation.
-- 3: It states when to ask for clarification or stop.
+- 4：默认行为安全，不擅自修改文件、外部系统或远程状态。
+- 3：尊重用户意图，避免未经确认扩大范围。
+- 3：说明何时询问、停止或报告不确定性。
 
-## Hygiene - 5
+## 实践差异风险 - 10
 
-- 2: `agents/openai.yaml` is present and consistent when UI metadata is expected.
-- 1: No unnecessary README, CHANGELOG, or process notes are included.
-- 1: File names, links, and paths are stable and resolve correctly.
-- 1: Formatting is readable and compatible with Markdown.
+- 2：目标技能的核心任务、预期产物和输出契约明确。
+- 2：输入边界、文件选择、目标解析和停止条件稳定，减少不同线程选择不同对象。
+- 2：可选步骤、执行顺序、tie-breaker、输出或评分锚点和人工判断阈值明确。
+- 2：环境依赖、外部服务、时间/网络状态、工具可用性和副作用路径被说明。
+- 2：说明何时使用 fixture、重复评估、交叉复核或 forward-test 来暴露目标技能的结果差异。
 
-## Verdict Bands
+## 卫生 - 10
 
-- 90-100: Excellent; ready to use with only minor polish.
-- 75-89: Good; usable, with focused improvements recommended.
-- 60-74: Needs revision before relying on it for important work.
-- 40-59: Major gaps; rebuild or substantially rewrite.
-- 0-39: Not usable as a Codex skill until critical issues are fixed.
+- 3：`agents/openai.yaml` 存在，并与技能意图一致。
+- 2：没有不必要的 README、CHANGELOG、安装说明或过程笔记。
+- 2：文件名、链接和路径稳定且可解析。
+- 2：Markdown 格式清晰，可读性好。
+- 1：技能目录中没有缓存、临时文件或无关资源。
 
-## Chinese Report Example
+## 结论区间
 
-Use this compact shape for human-readable reports:
+- 90-100：优秀，可直接使用，最多需要少量润色。
+- 75-89：良好，可用，但建议做针对性改进。
+- 60-74：需要修订后再用于重要工作。
+- 40-59：存在较大缺口，建议大幅重写。
+- 0-39：暂不可作为 Codex 技能使用。
+
+## 中文报告示例
 
 ```markdown
 结论
-可用，但需要修复一个触发描述问题。
+可用，但需要降低一个实践差异风险。本次评估为静态评估，未运行重复评估或 forward-test。
 
-评分
-85/100
+静态检查分
+100/100
+
+rubric 综合分
+88/100
 
 P0 问题
 未发现。
 
 P1 问题
-- trigger-metadata: `description` 没有说明何时使用该技能。[SKILL.md]
+未发现。
+
+P2 问题
+- result-variance: PDF 转 Markdown 流程没有说明是否必须转录脚注和图表说明，可能导致不同实践生成内容范围不同的 Markdown。[SKILL.md]
+
+P3 问题
+未发现。
+
+实践差异风险
+- 目标技能在不同线程中可能因内容边界不清，分别遗漏或保留脚注、图表说明和附录。
+- 本次未运行重复评估或 forward-test，结论仅基于静态风险判断。
 
 建议修复
-- 在 frontmatter `description` 中加入具体触发场景。
+- 在目标技能中明确正文、脚注、图表说明和附录的转录规则，并加入一条验证命令或 fixture。
 
 验证命令
 - python path\to\quick_validate.py "path\to\skill"
 - python path\to\check_skill.py "path\to\skill"
 ```
 
-## Manual Review Checklist
+## 人工复核清单
 
-- Does the description make implicit invocation likely to work?
-- Could a fresh Codex instance use the skill without hidden context?
-- Are long or variant-specific details loaded only when needed?
-- Are scripts justified by repeatability or reliability?
-- Are validation commands concrete and non-destructive by default?
-- Are public OpenAI/Codex claims grounded in official docs or the local skill-creator guidance?
+- `description` 是否能让隐式触发可靠工作？
+- 新线程里的 Codex 是否能在没有隐藏上下文的情况下使用该技能？
+- 详细或变体说明是否只在需要时加载？
+- 脚本是否确实因可重复性或可靠性而有必要？
+- 验证命令是否具体且默认非破坏性？
+- 目标技能在不同执行者、线程、上下文或环境中是否可能改不同文件、选不同输入、生成不同格式、遗漏不同内容或执行不同外部动作？
+- 输入边界、输出或评分锚点、tie-breaker、可选步骤和人工判断阈值是否足够明确？
+- 目标技能的 `SKILL.md`、引用材料、脚本输出、默认提示之间是否存在会放大结果差异的说明与实现不一致？
+- 对 OpenAI/Codex 的公开产品事实是否来自官方文档或本地 `skill-creator` 指南？
