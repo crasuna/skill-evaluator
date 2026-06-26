@@ -470,6 +470,7 @@ def print_text(result: CheckResult) -> None:
     print("静态检查分")
     print(f"{result.score}/100")
     print("提示：静态检查分只来自确定性脚本，不是最终 rubric 综合分；完整评估需按 references/rubric.md 另行判断。")
+    print("提示：本脚本不会生成 rubric 分项；完整评估必须人工补充 8 个分项小分和扣分理由。")
     print()
     for priority in ("P0", "P1", "P2", "P3"):
         print(f"{priority} 问题")
